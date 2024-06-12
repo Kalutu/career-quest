@@ -1,19 +1,19 @@
-import About from "./About";
+import FindJobs from "./FindJobs";
 import AuthPage from "./Auth";
 import Companies from "./Companies";
-import CompanyProfile from "./CompanyProfile";
-import FindJobs from "./FindJobs";
-import JobDetail from "./JobDetail";
-import UploadJob from "./UploadJob";
 import UserProfile from "./UserProfile";
+import CompanyProfile from "./CompanyProfile";
+import UploadJob from "./UploadJob";
+import About from "./About";
+import JobDetail from "./JobDetail";
 
 export {
-  About,
+  FindJobs,
   AuthPage,
   Companies,
-  CompanyProfile,
-  FindJobs,
-  JobDetail,
-  UploadJob,
   UserProfile,
+  CompanyProfile,
+  UploadJob,
+  About,
+  JobDetail,
 };
