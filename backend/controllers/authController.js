@@ -1,18 +1,18 @@
-import Users from "../models/users.js";
+import Users from "../models/userModel.js";
 
 export const register = async (req, res, next) => {
-  const { firstname, lastname, email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
 
-  //validate fields
+  //validate fileds
 
-  if (!firstname) {
+  if (!firstName) {
     next("First Name is required");
-  }
-  if (!lastname) {
-    next("Last Name is required");
   }
   if (!email) {
     next("Email is required");
+  }
+  if (!lastName) {
+    next("Last Name is required");
   }
   if (!password) {
     next("Password is required");
@@ -22,26 +22,27 @@ export const register = async (req, res, next) => {
     const userExist = await Users.findOne({ email });
 
     if (userExist) {
-      next("Email Already Exists");
+      next("Email Address already exists");
       return;
     }
 
     const user = await Users.create({
-      firstname,
-      lastname,
+      firstName,
+      lastName,
       email,
       password,
     });
 
-    //user token
-    const token = user.createToken();
-    res.stattus(201).send({
+    // user token
+    const token = await user.createJWT();
+
+    res.status(201).send({
       success: true,
       message: "Account created successfully",
       user: {
-        _id: user.id,
-        firstname: user.firstname,
-        lastname: user.lastname,
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         accountType: user.accountType,
       },
@@ -52,4 +53,45 @@ export const register = async (req, res, next) => {
     res.status(404).json({ message: error.message });
   }
 };
-export const signIn = async (req, res, next) => {};
+
+export const signIn = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  try {
+    //validation
+    if (!email || !password) {
+      next("Please Provide AUser Credentials");
+      return;
+    }
+
+    // find user by email
+    const user = await Users.findOne({ email }).select("+password");
+
+    if (!user) {
+      next("Invalid -email or password");
+      return;
+    }
+
+    // compare password
+    const isMatch = await user.comparePassword(password);
+
+    if (!isMatch) {
+      next("Invalid email or password");
+      return;
+    }
+
+    user.password = undefined;
+
+    const token = user.createJWT();
+
+    res.status(201).json({
+      success: true,
+      message: "Login successfully",
+      user,
+      token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ message: error.message });
+  }
+};
