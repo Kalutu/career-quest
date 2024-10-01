@@ -3,6 +3,7 @@ import Banner from "../Components/Banner";
 import Card from "../Components/Card";
 import Jobs from "./Jobs";
 import Sidebar from "../sidebar/Sidebar";
+import NewsLetter from "../Components/NewsLetter";
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -154,7 +155,9 @@ const Home = () => {
           )}
         </div>
         {/* Right Side */}
-        <div className="bg-white p-4 rounded">Right</div>
+        <div className="bg-white p-4 rounded">
+          <NewsLetter />
+        </div>
       </div>
     </div>
   );
