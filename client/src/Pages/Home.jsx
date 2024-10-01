@@ -2,16 +2,22 @@ import React, { useEffect, useState } from "react";
 import Banner from "../Components/Banner";
 import Card from "../Components/Card";
 import Jobs from "./Jobs";
+import Sidebar from "../sidebar/Sidebar";
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [jobs, setJobs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
+    setIsLoading(true);
     fetch("jobs.json")
       .then((res) => res.json())
       .then((data) => {
         setJobs(data);
+        setIsLoading(false);
       });
   }, []);
 
@@ -29,12 +35,36 @@ const Home = () => {
 
   // Radio Filtering
   const handleChange = (e) => {
-    selectedCategory(e.target.value);
+    setSelectedCategory(e.target.value);
   };
 
   // Button Filtering
   const handleClick = (e) => {
-    selectedCategory(e.target.value);
+    setSelectedCategory(e.target.value);
+  };
+
+  // Calculate index range
+  const calculatePageRange = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return {
+      startIndex,
+      endIndex,
+    };
+  };
+
+  // Next Page Function
+  const nextPage = () => {
+    if (currentPage < Math.ceil(filteredItems.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Previous Page Function
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   // Main functions
@@ -55,7 +85,9 @@ const Home = () => {
           employmentType.toLowerCase() === selected.toLowerCase()
       );
     }
-
+    // Slice Data based on currentpage
+    const { startIndex, endIndex } = calculatePageRange();
+    filteredJobs = filteredJobs.slice(startIndex, endIndex);
     return filteredJobs.map((data, i) => <Card key={i} data={data} />);
   };
 
@@ -67,13 +99,51 @@ const Home = () => {
       {/* main content */}
       <div className="bg-[#FAFAFA] md:grid grid-cols-4 gap-8 lg:px-24 px-4 py-12">
         {/* Left Side */}
-        <div className="bg-white p-4 rounded">Left</div>
+        <div className="bg-white p-4 rounded">
+          <Sidebar handleChange={handleChange} handleClick={handleClick} />
+        </div>
 
         {/* Job cards */}
         <div className="bg-white p-4 rounded col-span-2">
-          <Jobs result={result} />
-        </div>
+          {isLoading ? (
+            <p className="font-medium">Loading...</p>
+          ) : result.length > 0 ? (
+            <Jobs result={result} />
+          ) : (
+            <>
+              <h3 className="text-lg font-bold mb-2">{result.length} Jobs</h3>
+              <p>No data found</p>
+            </>
+          )}
 
+          {/* Pagination here */}
+          {result.length > 0 ? (
+            <div className="flex justify-center mt-4 space-x-8">
+              <button
+                onClick={prevPage}
+                disabled={currentPage === 1}
+                className="hover:underline"
+              >
+                Previous
+              </button>
+              <span className="mx-2">
+                Page {currentPage} of{" "}
+                {Math.ceil(filteredItems.length / itemsPerPage)}
+              </span>
+              <button
+                onClick={nextPage}
+                disabled={
+                  currentPage === Math.ceil(filteredItems.length / itemsPerPage)
+                }
+                className="hover:underline"
+              >
+                Next
+              </button>
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
         {/* Right Side */}
         <div className="bg-white p-4 rounded">Right</div>
       </div>
