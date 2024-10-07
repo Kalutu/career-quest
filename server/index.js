@@ -1,16 +1,23 @@
 const express = require("express");
 const app = express();
+const mongoose = require("mongoose");
 const cors = require("cors");
-const port = process.env.PORT || 5000;
+require("dotenv").config();
+const port = process.env.PORT || 3000;
+const jobsRouter = require("./routes/job.js");
 
 // middleware
 app.use(express.json());
 app.use(cors());
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+app.use("/api/v1/jobs", jobsRouter);
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("Connected to the database sucessfully");
+    app.listen(port, () => {
+      console.log(`App is listening to port ${port}`);
+    });
+  })
+  .catch((error) => console.log(error));
