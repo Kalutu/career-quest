@@ -51,12 +51,13 @@ const CreateJob = () => {
               />
             </div>
           </div>
+
           {/* Second Row */}
           <div className="create-job-flex">
             <div className="lg:w-1/2 w-full">
               <label className="block mb-2 text-lg">Minimum Salary</label>
               <input
-                type="text"
+                type="number"
                 placeholder="$20k"
                 {...register("minPrice")}
                 className="create-job-input"
@@ -65,13 +66,14 @@ const CreateJob = () => {
             <div className="lg:w-1/2 w-full">
               <label className="block mb-2 text-lg">Maximum Salary</label>
               <input
-                type="text"
+                type="number"
                 placeholder="$120k"
                 {...register("maxPrice")}
                 className="create-job-input"
               />
             </div>
           </div>
+
           {/* Third Row */}
           <div className="create-job-flex">
             <div className="lg:w-1/2 w-full">
@@ -93,6 +95,7 @@ const CreateJob = () => {
               />
             </div>
           </div>
+
           {/* Fourth Row */}
           <div className="create-job-flex">
             <div className="lg:w-1/2 w-full">
@@ -105,7 +108,7 @@ const CreateJob = () => {
               />
             </div>
             <div className="lg:w-1/2 w-full">
-              <label className="block mb-2 text-lg">Experiece Level</label>
+              <label className="block mb-2 text-lg">Experience Level</label>
               <select
                 {...register("experienceLevel")}
                 className="create-job-input"
@@ -117,17 +120,22 @@ const CreateJob = () => {
               </select>
             </div>
           </div>
+
           {/* Fifth Row */}
           <div>
             <label className="block mb-2 text-lg">Required Skillset</label>
             <CreatableSelect
               className="create-job-input py-4"
-              defaultValue={selectedOption}
-              onChange={setselectedOption}
+              value={selectedOption} // Set value for selected skills
+              onChange={(val) => {
+                setselectedOption(val); // Update state
+                register("requiredSkillset").onChange(val); // Pass to react-hook-form
+              }}
               options={options}
               isMulti
             />
           </div>
+
           {/* Sixth Row */}
           <div className="create-job-flex">
             <div className="lg:w-1/2 w-full">
@@ -145,23 +153,25 @@ const CreateJob = () => {
                 {...register("employmentType")}
                 className="create-job-input"
               >
-                <option value="">Choose employement type</option>
+                <option value="">Choose employment type</option>
                 <option value="Full-Time">Full-Time</option>
                 <option value="Part-Time">Part-Time</option>
                 <option value="Temporary">Temporary</option>
               </select>
             </div>
           </div>
+
           {/* Seventh Row */}
           <div className="w-full">
             <label className="block mb-2 text-lg">Job Description</label>
             <textarea
               className="w-full pl-3 py-1.5 focus:outline-none placeholder:text-gray-700"
               rows={6}
-              placeholder="Job Desription"
-              {...register("firstName")}
+              placeholder="Job Description"
+              {...register("description")}
             ></textarea>
           </div>
+
           {/* Last Row */}
           <div>
             <label className="block mb-2 text-lg">Job Posted By</label>
@@ -172,6 +182,7 @@ const CreateJob = () => {
               className="create-job-input"
             />
           </div>
+
           <input
             type="submit"
             className="block mt-12 bg-blue text-white font-semi-bold px-8 py-2 rounded-sm cursor-pointer"
