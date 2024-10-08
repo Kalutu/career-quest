@@ -3,15 +3,40 @@ import { useForm } from "react-hook-form";
 import CreatableSelect from "react-select/creatable";
 
 const CreateJob = () => {
-  const [selectedOption, setselectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
   const onSubmit = (data) => {
-    data.requiredSKillset = selectedOption;
-    console.log(data);
+    data.requiredSkillset = selectedOption
+      ? selectedOption.map((option) => option.value)
+      : [];
+    fetch("http://localhost:3000/api/v1/jobs", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => {
+            throw new Error("Failed to submit the job posting");
+          });
+          throw new Error(
+            errorData.message || "Failed to submit the job posting"
+          );
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Job posted successfully:", data);
+      })
+      .catch((error) => {
+        console.error("Error posting job:", error.message);
+      });
   };
 
   const options = [
@@ -20,7 +45,7 @@ const CreateJob = () => {
     { value: "HTML", label: "HTML" },
     { value: "CSS", label: "CSS" },
     { value: "React", label: "React" },
-    { value: "NOde", label: "NOde" },
+    { value: "Node", label: "Node" },
     { value: "MongoDB", label: "MongoDB" },
     { value: "Redux", label: "Redux" },
   ];
@@ -125,14 +150,11 @@ const CreateJob = () => {
           <div>
             <label className="block mb-2 text-lg">Required Skillset</label>
             <CreatableSelect
-              className="create-job-input py-4"
-              value={selectedOption} // Set value for selected skills
-              onChange={(val) => {
-                setselectedOption(val); // Update state
-                register("requiredSkillset").onChange(val); // Pass to react-hook-form
-              }}
+              defaultValue={selectedOption}
+              onChange={setSelectedOption}
               options={options}
               isMulti
+              className="create-job-input py-4"
             />
           </div>
 

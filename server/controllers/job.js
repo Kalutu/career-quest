@@ -37,7 +37,24 @@ const createJob = async (req, res) => {
     experienceLevel,
     employmentType,
     description,
+    requiredSkillset,
+    postedBy, // Add this field
   } = req.body;
+
+  // Basic validation for required fields
+  if (
+    !companyName ||
+    !jobTitle ||
+    !minPrice ||
+    !maxPrice ||
+    !jobLocation ||
+    !postingDate ||
+    !postedBy
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Please fill in all required fields" });
+  }
 
   const newJob = new Job({
     companyName,
@@ -51,6 +68,8 @@ const createJob = async (req, res) => {
     experienceLevel,
     employmentType,
     description,
+    requiredSkillset,
+    postedBy,
   });
 
   try {
