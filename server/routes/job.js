@@ -9,19 +9,28 @@ const {
 
 const router = express.Router();
 
+// Middleware for validating object IDs
+const validateObjectId = (req, res, next) => {
+  const { id } = req.params;
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({ message: "Invalid job ID" });
+  }
+  next();
+};
+
 // Get all jobs
 router.get("/", getAllJobs);
 
-// Get job by ID
-router.get("/:id", getJobById);
+// Get job by ID with ID validation
+router.get("/:id", validateObjectId, getJobById);
 
 // Create a new job
 router.post("/", createJob);
 
-// Update a job by ID
-router.put("/:id", updateJob);
+// Update a job by ID with ID validation
+router.put("/:id", validateObjectId, updateJob);
 
-// Delete a job by ID
-router.delete("/:id", deleteJob);
+// Soft delete a job by ID with ID validation
+router.delete("/:id", validateObjectId, deleteJob);
 
 module.exports = router;

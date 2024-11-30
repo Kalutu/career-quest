@@ -1,10 +1,22 @@
 const Job = require("../models/Job");
 
-// Get all jobs
+// Get all jobs with pagination and optional filtering
 const getAllJobs = async (req, res) => {
+  const { page = 1, limit = 10, status = "Active" } = req.query; // Default to Active jobs
+
   try {
-    const jobs = await Job.find();
-    res.status(200).json(jobs);
+    const jobs = await Job.find({ status })
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    const totalJobs = await Job.countDocuments({ status });
+
+    res.status(200).json({
+      totalJobs,
+      totalPages: Math.ceil(totalJobs / limit),
+      currentPage: page,
+      jobs,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -14,8 +26,8 @@ const getAllJobs = async (req, res) => {
 const getJobById = async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
-    if (!job) {
-      return res.status(404).json({ message: "Job not found" });
+    if (!job || job.status === "Inactive") {
+      return res.status(404).json({ message: "Job not found or inactive" });
     }
     res.status(200).json(job);
   } catch (error) {
@@ -38,7 +50,7 @@ const createJob = async (req, res) => {
     employmentType,
     description,
     requiredSkillset,
-    postedBy, // Add this field
+    postedBy,
   } = req.body;
 
   // Basic validation for required fields
@@ -47,8 +59,13 @@ const createJob = async (req, res) => {
     !jobTitle ||
     !minPrice ||
     !maxPrice ||
+    !salaryType ||
     !jobLocation ||
     !postingDate ||
+    !experienceLevel ||
+    !employmentType ||
+    !description ||
+    !requiredSkillset ||
     !postedBy
   ) {
     return res
@@ -96,14 +113,18 @@ const updateJob = async (req, res) => {
   }
 };
 
-// Delete a job
+// Soft delete a job
 const deleteJob = async (req, res) => {
   try {
-    const job = await Job.findByIdAndDelete(req.params.id);
+    const job = await Job.findById(req.params.id);
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
-    res.status(200).json({ message: "Job deleted successfully" });
+
+    job.status = "Inactive";
+    await job.save();
+
+    res.status(200).json({ message: "Job deactivated successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

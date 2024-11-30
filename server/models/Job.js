@@ -12,6 +12,13 @@ const jobSchema = new mongoose.Schema({
   minPrice: {
     type: Number,
     required: true,
+    validate: {
+      validator: function (v) {
+        return v <= this.maxPrice;
+      },
+      message:
+        "Minimum salary should be less than or equal to the maximum salary.",
+    },
   },
   maxPrice: {
     type: Number,
@@ -28,11 +35,19 @@ const jobSchema = new mongoose.Schema({
   },
   postingDate: {
     type: Date,
+    default: Date.now,
     required: true,
   },
   experienceLevel: {
     type: String,
-    enum: ["No experience", "Internship", "Work remotely"],
+    enum: [
+      "No experience",
+      "Internship",
+      "Entry Level",
+      "Mid Level",
+      "Senior Level",
+      "Work remotely",
+    ],
     required: true,
   },
   requiredSkillset: {
@@ -57,11 +72,15 @@ const jobSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: function (v) {
-        // Basic email format validation
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
       },
       message: (props) => `${props.value} is not a valid email!`,
     },
+  },
+  status: {
+    type: String,
+    enum: ["Active", "Inactive"],
+    default: "Active",
   },
 });
 
